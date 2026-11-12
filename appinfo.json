@@ -1,0 +1,11 @@
+{
+  "id": "com.radiospt.app",
+  "version": "1.0.0",
+  "vendor": "Rafael Neves",
+  "type": "web",
+  "main": "index.html",
+  "title": "Radios-PT",
+  "icon": "icon.png",
+  "largeIcon": "icon.png",
+  "splashBackground": "#0f172a"
+}
