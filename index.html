@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radios-PT</title>
-    <!-- Tailwind CSS para um design moderno -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome para os ícones -->
+    <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- HLS.js para suportar streams HLS (.m3u8) -->
+    <!-- HLS.js -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </head>
 <body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
@@ -26,7 +26,7 @@
                 </div>
             </div>
 
-            <!-- PESQUISA -->
+            <!-- PESQUISA (Inclui gatilho secreto "definições") -->
             <div class="relative w-full sm:w-64">
                 <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400 text-sm"></i>
                 <input type="text" id="searchInput" placeholder="Pesquisar rádio..." 
@@ -38,7 +38,52 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="flex-1 max-w-4xl w-full mx-auto p-4 pb-32">
 
-        <!-- ESPAÇO DE FUTURA PUBLICIDADE (BANNER AD) -->
+        <!-- PAINEL SECRETO DE DIAGNÓSTICO (Ativado com "definições") -->
+        <div id="secretAdminPanel" class="hidden bg-slate-800 border-2 border-amber-500/50 rounded-2xl p-5 mb-6 shadow-2xl">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-700 pb-3 mb-4">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-screwdriver-wrench text-amber-400"></i>
+                    <h2 class="font-bold text-base text-amber-400">Painel Secreto — Diagnóstico de Streams</h2>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="runBackgroundCheck()" class="bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        <i class="fa-solid fa-rotate-right mr-1"></i> Re-testar Todas
+                    </button>
+                    <button onclick="closeSecretPanel()" class="bg-slate-700 hover:bg-slate-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+
+            <!-- RESUMO DOS TESTES -->
+            <div class="grid grid-cols-3 gap-3 mb-4 text-center">
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                    <span class="block text-xs text-slate-400">A Funcionar</span>
+                    <span id="statOk" class="text-lg font-bold text-emerald-400">0</span>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                    <span class="block text-xs text-slate-400">Com Erro</span>
+                    <span id="statFail" class="text-lg font-bold text-rose-400">0</span>
+                </div>
+                <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700">
+                    <span class="block text-xs text-slate-400">Pendentes</span>
+                    <span id="statPending" class="text-lg font-bold text-amber-400">0</span>
+                </div>
+            </div>
+
+            <!-- LISTA DE ERROS DETETADOS -->
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Rádios com Erro / Offline:</h3>
+                <button onclick="copyBrokenList()" class="text-xs text-indigo-400 hover:underline">
+                    <i class="fa-regular fa-copy mr-1"></i>Copiar lista de erros
+                </button>
+            </div>
+            <div id="brokenRadiosList" class="max-h-64 overflow-y-auto space-y-2 bg-slate-900/90 p-3 rounded-xl border border-slate-700 text-xs">
+                <p class="text-slate-500 italic">A iniciar verificação automática...</p>
+            </div>
+        </div>
+
+        <!-- ESPAÇO DE FUTURA PUBLICIDADE -->
         <div id="adBanner" class="bg-gradient-to-r from-indigo-900/60 to-purple-900/60 border border-indigo-500/30 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-lg relative overflow-hidden">
             <div class="flex items-center gap-3">
                 <div class="bg-indigo-500/20 p-2.5 rounded-lg text-indigo-400">
@@ -56,39 +101,35 @@
 
         <!-- ABAS DE PAÍSES -->
         <div class="flex overflow-x-auto gap-2 mb-6 pb-2 scrollbar-none">
-            <button onclick="filterCountry('all')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white transition shadow-md whitespace-nowrap">
+            <button onclick="filterCountry('all', this)" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white transition shadow-md whitespace-nowrap">
                 <i class="fa-solid fa-globe mr-2"></i>Todas
             </button>
-            <button onclick="filterCountry('pt')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
+            <button onclick="filterCountry('pt', this)" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
                 🇵🇹 Portugal (<span id="ptCount">0</span>)
             </button>
-            <button onclick="filterCountry('es')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
-                🇪🇸 Espanha
+            <button onclick="filterCountry('es', this)" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
+                🇪🇸 Espanha (<span id="esCount">0</span>)
             </button>
-            <button onclick="filterCountry('world')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
+            <button onclick="filterCountry('world', this)" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
                 🌍 Mundial
             </button>
         </div>
 
-        <!-- SECÇÃO DE FAVORITOS (APARECE NO TOPO SE HOUVER) -->
+        <!-- SECÇÃO DE FAVORITOS -->
         <div id="favoritesSection" class="mb-8 hidden">
             <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                 <i class="fa-solid fa-star text-amber-400"></i> As Minhas Favoritas
             </h2>
-            <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <!-- Preenchido via JavaScript -->
-            </div>
+            <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
         </div>
 
         <!-- LISTA DE RÁDIOS -->
         <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Estações Disponíveis</h2>
-        <div id="radiosGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <!-- Preenchido via JavaScript -->
-        </div>
+        <div id="radiosGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
 
     </main>
 
-    <!-- PLAYER DE ÁUDIO STICKY (FIXO EMBAIXO) -->
+    <!-- PLAYER DE ÁUDIO STICKY -->
     <footer id="audioPlayerBar" class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl hidden z-50">
         <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
             <div class="flex items-center gap-3 overflow-hidden">
@@ -110,7 +151,7 @@
         <audio id="audioElement" preload="none"></audio>
     </footer>
 
-    <!-- LÓGICA DA APLICAÇÃO COM DETETOR DE ERROS -->
+    <!-- LÓGICA DA APLICAÇÃO + VERIFICAÇÃO SILENCIOSA -->
     <script>
         const radios = [
             // --- PORTUGAL (Nacionais e Temáticas) ---
@@ -141,7 +182,7 @@
             { id: 'superfm', name: 'Super FM', country: 'pt', genre: 'Dance / Urban', url: 'https://centova.radios.pt:9251/stream' },
             { id: 'tocaadancar', name: 'Rádio Toca a Dançar', country: 'pt', genre: 'Dance / Popular', url: 'https://radio.tocaadancar.pt/stream' },
 
-            // --- PORTUGAL (Rádios Regionais e das Ilhas) ---
+            // --- PORTUGAL (Regionais e Ilhas) ---
             { id: 'radionova', name: 'Rádio Nova (Porto)', country: 'pt', genre: 'Regional / Porto', url: 'https://centova.radios.pt:9209/stream' },
             { id: 'terranova', name: 'Rádio Terra Nova (Aveiro)', country: 'pt', genre: 'Regional / Aveiro', url: 'https://radios.justradio.com/proxy/terranova?mp=/stream' },
             { id: 'vizela', name: 'Rádio Vizela', country: 'pt', genre: 'Regional / Minho', url: 'https://centova.radios.pt:9303/stream' },
@@ -173,7 +214,7 @@
             { id: 'barcelos', name: 'Rádio Barcelos', country: 'pt', genre: 'Regional / Barcelos', url: 'https://centova.radios.pt:9253/stream' },
             { id: 'minho', name: 'Antena Minho', country: 'pt', genre: 'Regional / Braga', url: 'https://centova.radios.pt:9225/stream' },
 
-            // --- PORTUGAL (Canais Temáticos Digitais / RTP / M80 / RFM) ---
+            // --- PORTUGAL (Temáticas Digitais) ---
             { id: 'm80ballads', name: 'M80 Ballads', country: 'pt', genre: 'M80 / Românticas', url: 'https://stream-icy.bauermedia.pt/m80ballads.mp3' },
             { id: 'm80dance', name: 'M80 Dance', country: 'pt', genre: 'M80 / Dance', url: 'https://stream-icy.bauermedia.pt/m80dance.mp3' },
             { id: 'rfmoceano', name: 'RFM Oceano Pacífico', country: 'pt', genre: 'RFM / Relax', url: 'https://stream-icy.bauermedia.pt/oceanopacifico.mp3' },
@@ -185,11 +226,27 @@
             { id: 'antena2jazz', name: 'Antena 2 Jazz', country: 'pt', genre: 'Jazz / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena2jazz80a/playlist.m3u8', isHls: true },
             { id: 'antena3rock', name: 'Antena 3 Rock', country: 'pt', genre: 'Rock / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena3rock80a/playlist.m3u8', isHls: true },
 
-            // --- ESPANHA ---
+            // --- ESPANHA (20+ estações) ---
             { id: 'los40', name: 'LOS40 Spain', country: 'es', genre: 'Top 40 / Pop', url: 'https://25633.live.streamtheworld.com/LOS40.mp3' },
             { id: 'cadenaser', name: 'Cadena SER', country: 'es', genre: 'Notícias / Geral', url: 'https://playerservices.streamtheworld.com/api/livestreamredirect/CADENASER.mp3' },
             { id: 'cope', name: 'Cadena COPE', country: 'es', genre: 'Generalista', url: 'https://cope-audio.cope.es/cope_directo_96kbps.aac' },
             { id: 'europafm', name: 'Europa FM', country: 'es', genre: 'Pop / Rock', url: 'https://radio-atres-live.ondacero.es/api/livestream/europafm/master.m3u8', isHls: true },
+            { id: 'cadena100', name: 'Cadena 100', country: 'es', genre: 'Pop / Adulto', url: 'https://cadena100-audio.cope.es/cadena100_directo_96kbps.aac' },
+            { id: 'rockfm', name: 'Rock FM', country: 'es', genre: 'Rock Clássico', url: 'https://rockfm-audio.cope.es/rockfm_directo_96kbps.aac' },
+            { id: 'los40classic', name: 'LOS40 Classic', country: 'es', genre: 'Pop Anos 80/90', url: 'https://24393.live.streamtheworld.com/LOS40_CLASSIC.mp3' },
+            { id: 'los40urban', name: 'LOS40 Urban', country: 'es', genre: 'Urban / Reggaeton', url: 'https://25633.live.streamtheworld.com/LOS40_URBAN.mp3' },
+            { id: 'kissfm', name: 'Kiss FM', country: 'es', genre: 'Adult Contemporary', url: 'https://kissfm.kissfmradio.cires21.com/kissfm.mp3' },
+            { id: 'melodiafm', name: 'Melodía FM', country: 'es', genre: 'Pop / Anos 90', url: 'https://radio-atres-live.ondacero.es/api/livestream/melodiafm/master.m3u8', isHls: true },
+            { id: 'ondacero', name: 'Onda Cero', country: 'es', genre: 'Generalista / Notícias', url: 'https://radio-atres-live.ondacero.es/api/livestream/ondacero/master.m3u8', isHls: true },
+            { id: 'rne1', name: 'RNE 1 (Radio Nacional)', country: 'es', genre: 'Informação / Pública', url: 'https://rtve-live.stream.flumotion.com/rtve/rne_s1m.mp3' },
+            { id: 'rne3', name: 'Radio 3 (RNE)', country: 'es', genre: 'Alternativa / Cultural', url: 'https://rtve-live.stream.flumotion.com/rtve/rne_r3m.mp3' },
+            { id: 'rne5', name: 'Radio 5 (RNE)', country: 'es', genre: 'Notícias Continuas', url: 'https://rtve-live.stream.flumotion.com/rtve/rne_r5m.mp3' },
+            { id: 'esradio', name: 'esRadio', country: 'es', genre: 'Talk / Debate', url: 'https://libertel.esradio.fm/esradio24h.mp3' },
+            { id: 'locafm', name: 'Loca FM', country: 'es', genre: 'Dance / Electronic', url: 'https://s3.radio.co/s2363e185e/listen' },
+            { id: 'flamenco', name: 'Canal Fiesta Radio', country: 'es', genre: 'Flamenco / Andaluz', url: 'https://canalsur.flumotion.com/canalsur/canalfiesta.mp3' },
+            { id: 'rac1', name: 'RAC 1 (Catalunya)', country: 'es', genre: 'Generalista / Cat', url: 'https://shoutcast.flumotion.com/intercom/rac1.mp3' },
+            { id: 'radiolé', name: 'Radiolé', country: 'es', genre: 'Copla / Flamenco Pop', url: 'https://22553.live.streamtheworld.com/RADIOLE.mp3' },
+            { id: 'latino', name: 'Master FM Latino', country: 'es', genre: 'Latino / Reggaeton', url: 'https://audio.masterfm.es/latino.mp3' },
 
             // --- MUNDIAL ---
             { id: 'bbc1', name: 'BBC Radio 1', country: 'world', genre: 'UK / Modern', url: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one' },
@@ -204,20 +261,169 @@
         let currentStation = null;
         let favorites = JSON.parse(localStorage.getItem('radios_pt_favs')) || [];
 
-        // Detetor de Erros no Elemento de Áudio
-        currentAudio.addEventListener('error', (e) => {
-            if (currentStation) {
-                console.error(`[ERRO DE STREAM] A rádio "${currentStation.name}" falhou. URL: ${currentStation.url}`);
-                document.getElementById('playerSubtitle').textContent = "⚠️ Erro: Stream offline ou bloqueado";
-                alert(`A rádio "${currentStation.name}" está a dar erro de reprodução (stream offline ou bloqueado por segurança).`);
-            }
-        });
+        // Estado da verificação automática em segundo plano
+        let streamStatus = {}; // { id: { status: 'ok' | 'error' | 'pending', reason: '' } }
+        let checkSessionId = 0;
 
-        // Atualizar contador de Portugal na interface
         document.getElementById('ptCount').textContent = radios.filter(r => r.country === 'pt').length;
+        document.getElementById('esCount').textContent = radios.filter(r => r.country === 'es').length;
 
+        // --- SISTEMA DE VERIFICAÇÃO SILENCIOSA EM SEGUNDO PLANO ---
+        function testSingleStream(radio, sessionId) {
+            return new Promise((resolve) => {
+                if (sessionId !== checkSessionId) return resolve();
+
+                // Bloqueio imediato de HTTP em página HTTPS
+                if (window.location.protocol === 'https:' && radio.url.startsWith('http://')) {
+                    streamStatus[radio.id] = { status: 'error', reason: 'Mixed Content (HTTP inseguro)' };
+                    updateSecretUI();
+                    return resolve();
+                }
+
+                let finished = false;
+                const done = (status, reason = '') => {
+                    if (finished) return;
+                    finished = true;
+                    if (sessionId === checkSessionId) {
+                        streamStatus[radio.id] = { status, reason };
+                        updateSecretUI();
+                    }
+                    resolve();
+                };
+
+                const timer = setTimeout(() => {
+                    cleanup();
+                    done('error', 'Timeout (demorou mais de 7s)');
+                }, 7000);
+
+                if (radio.isHls) {
+                    fetch(radio.url, { method: 'GET' })
+                        .then(res => {
+                            clearTimeout(timer);
+                            if (res.ok) done('ok');
+                            else done('error', `HTTP ${res.status}`);
+                        })
+                        .catch(() => {
+                            clearTimeout(timer);
+                            done('error', 'Falha de rede ou bloqueio CORS');
+                        });
+                    return;
+                }
+
+                const probeAudio = new Audio();
+                probeAudio.preload = 'metadata';
+                probeAudio.muted = true;
+
+                const cleanup = () => {
+                    probeAudio.onloadedmetadata = null;
+                    probeAudio.oncanplay = null;
+                    probeAudio.onerror = null;
+                    probeAudio.src = '';
+                    probeAudio.load();
+                };
+
+                probeAudio.onloadedmetadata = () => {
+                    clearTimeout(timer);
+                    cleanup();
+                    done('ok');
+                };
+
+                probeAudio.oncanplay = () => {
+                    clearTimeout(timer);
+                    cleanup();
+                    done('ok');
+                };
+
+                probeAudio.onerror = () => {
+                    clearTimeout(timer);
+                    cleanup();
+                    done('error', 'Stream offline ou bloqueado (ORB/CORS)');
+                };
+
+                probeAudio.src = radio.url;
+            });
+        }
+
+        async function runBackgroundCheck() {
+            checkSessionId++;
+            const currentSession = checkSessionId;
+
+            radios.forEach(r => {
+                streamStatus[r.id] = { status: 'pending', reason: '' };
+            });
+            updateSecretUI();
+
+            // Processa em lotes de 5 rádios de cada vez para não sobrecarregar o browser
+            const batchSize = 5;
+            for (let i = 0; i < radios.length; i += batchSize) {
+                if (currentSession !== checkSessionId) break;
+                const batch = radios.slice(i, i + batchSize);
+                await Promise.all(batch.map(r => testSingleStream(r, currentSession)));
+            }
+        }
+
+        function updateSecretUI() {
+            const values = Object.values(streamStatus);
+            const okCount = values.filter(v => v.status === 'ok').length;
+            const failCount = values.filter(v => v.status === 'error').length;
+            const pendingCount = values.filter(v => v.status === 'pending').length;
+
+            document.getElementById('statOk').textContent = okCount;
+            document.getElementById('statFail').textContent = failCount;
+            document.getElementById('statPending').textContent = pendingCount;
+
+            const listContainer = document.getElementById('brokenRadiosList');
+            const broken = radios.filter(r => streamStatus[r.id]?.status === 'error');
+
+            if (broken.length === 0) {
+                listContainer.innerHTML = pendingCount > 0 
+                    ? `<p class="text-slate-400">A testar estações em segundo plano... Nenhum erro até agora.</p>`
+                    : `<p class="text-emerald-400 font-medium">Todas as rádios responderam sem erros!</p>`;
+                return;
+            }
+
+            listContainer.innerHTML = broken.map(r => `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 bg-slate-800/90 p-2.5 rounded-lg border border-rose-500/30">
+                    <div>
+                        <span class="font-bold text-rose-300">${r.name}</span>
+                        <span class="text-slate-400 ml-1">(${r.id})</span>
+                        <p class="text-[11px] text-slate-400 truncate max-w-md">${r.url}</p>
+                    </div>
+                    <span class="text-[11px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded self-start sm:self-center">
+                        ${streamStatus[r.id].reason}
+                    </span>
+                </div>
+            `).join('');
+        }
+
+        function closeSecretPanel() {
+            document.getElementById('secretAdminPanel').classList.add('hidden');
+            const searchInput = document.getElementById('searchInput');
+            if (['definições', 'definicoes'].includes(searchInput.value.trim().toLowerCase())) {
+                searchInput.value = '';
+                renderRadios();
+            }
+        }
+
+        function copyBrokenList() {
+            const broken = radios.filter(r => streamStatus[r.id]?.status === 'error');
+            if (broken.length === 0) return alert('Não há rádios com erro para copiar.');
+            const text = broken.map(r => `- ${r.name} (${r.id}): ${streamStatus[r.id].reason} | ${r.url}`).join('\n');
+            navigator.clipboard.writeText(text).then(() => alert('Lista de rádios com erro copiada!'));
+        }
+
+        // --- RENDERIZAÇÃO E REPRODUÇÃO NORMAL ---
         function renderRadios() {
-            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const rawSearch = document.getElementById('searchInput').value.trim();
+            const searchQuery = rawSearch.toLowerCase();
+
+            // Gatilho secreto na barra de pesquisa
+            if (searchQuery === 'definições' || searchQuery === 'definicoes') {
+                document.getElementById('secretAdminPanel').classList.remove('hidden');
+                updateSecretUI();
+                return;
+            }
+
             const grid = document.getElementById('radiosGrid');
             const favGrid = document.getElementById('favoritesGrid');
             const favSection = document.getElementById('favoritesSection');
@@ -234,9 +440,7 @@
             const favRadios = radios.filter(r => favorites.includes(r.id));
             if (favRadios.length > 0 && currentFilter === 'all' && !searchQuery) {
                 favSection.classList.remove('hidden');
-                favRadios.forEach(r => {
-                    favGrid.appendChild(createRadioCard(r, true));
-                });
+                favRadios.forEach(r => favGrid.appendChild(createRadioCard(r)));
             } else {
                 favSection.classList.add('hidden');
             }
@@ -246,12 +450,10 @@
                 return;
             }
 
-            filtered.forEach(r => {
-                grid.appendChild(createRadioCard(r, false));
-            });
+            filtered.forEach(r => grid.appendChild(createRadioCard(r)));
         }
 
-        function createRadioCard(radio, isFavContainer) {
+        function createRadioCard(radio) {
             const isPlaying = currentStation && currentStation.id === radio.id && !currentAudio.paused;
             const isFav = favorites.includes(radio.id);
 
@@ -317,23 +519,21 @@
                     hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
                         currentAudio.play().then(() => {
                             playerSubtitle.textContent = `${station.genre} • Em direto`;
-                        }).catch(e => {
-                            console.error(`Erro HLS play:`, e);
+                        }).catch(() => {
+                            playerSubtitle.textContent = "⚠️ Erro ao reproduzir HLS";
                         });
                     });
                     hlsInstance.on(Hls.Events.ERROR, (event, data) => {
                         if (data.fatal) {
-                            console.error(`[ERRO HLS FATAL] Rádio: ${station.name}`, data);
-                            playerSubtitle.textContent = "⚠️ Erro no stream HLS";
+                            playerSubtitle.textContent = "⚠️ Stream HLS offline ou bloqueado";
                         }
                     });
                 } else {
                     currentAudio.src = station.url;
                     currentAudio.play().then(() => {
                         playerSubtitle.textContent = `${station.genre} • Em direto`;
-                    }).catch(e => {
-                        console.error(`[ERRO HTML5 AUDIO] Rádio: ${station.name}`, e);
-                        playerSubtitle.textContent = "⚠️ Erro de reprodução";
+                    }).catch(() => {
+                        playerSubtitle.textContent = "⚠️ Stream offline ou bloqueado";
                     });
                 }
             }
@@ -363,12 +563,14 @@
             renderRadios();
         }
 
-        function filterCountry(country) {
+        function filterCountry(country, btnElement) {
             currentFilter = country;
             document.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap";
             });
-            event.currentTarget.className = "tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white transition shadow-md whitespace-nowrap";
+            if (btnElement) {
+                btnElement.className = "tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white transition shadow-md whitespace-nowrap";
+            }
             renderRadios();
         }
 
@@ -378,7 +580,9 @@
 
         document.getElementById('searchInput').addEventListener('input', renderRadios);
 
+        // Inicializar aplicação e iniciar verificação silenciosa após 1 segundo
         renderRadios();
+        setTimeout(runBackgroundCheck, 1000);
     </script>
 </body>
 </html>
