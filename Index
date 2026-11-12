@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radios-PT</title>
+    <!-- Tailwind CSS para um design moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome para os ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HLS.js para suportar streams HLS (.m3u8) -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col font-sans">
+
+    <!-- CABEÇALHO -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 shadow-md">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-lg flex items-center justify-center">
+                    <i class="fa-solid fa-radio text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wide">Radios-PT</h1>
+                    <p class="text-xs text-slate-400">Portugal, Espanha & Mundo</p>
+                </div>
+            </div>
+
+            <!-- PESQUISA -->
+            <div class="relative w-full sm:w-64">
+                <i class="fa-solid fa-magnifying-glass absolute left-3 top-3.5 text-slate-400 text-sm"></i>
+                <input type="text" id="searchInput" placeholder="Pesquisar rádio..." 
+                    class="w-full bg-slate-900 border border-slate-700 rounded-xl pl-10 pr-4 py-2 text-sm focus:outline-none focus:border-indigo-500 transition">
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 pb-32">
+
+        <!-- ESPAÇO DE FUTURA PUBLICIDADE (BANNER AD) -->
+        <div id="adBanner" class="bg-gradient-to-r from-indigo-900/60 to-purple-900/60 border border-indigo-500/30 rounded-2xl p-4 mb-6 flex items-center justify-between shadow-lg relative overflow-hidden">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-500/20 p-2.5 rounded-lg text-indigo-400">
+                    <i class="fa-solid fa-rectangle-ad text-lg"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded">Patrocinado</span>
+                    <p class="text-sm font-medium text-slate-200 mt-1">Espaço reservado para futura publicidade (Banner)</p>
+                </div>
+            </div>
+            <button onclick="dismissAd()" class="text-slate-400 hover:text-white p-1 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <!-- ABAS DE PAÍSES -->
+        <div class="flex overflow-x-auto gap-2 mb-6 pb-2 scrollbar-none">
+            <button onclick="filterCountry('all')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white transition shadow-md whitespace-nowrap">
+                <i class="fa-solid fa-globe mr-2"></i>Todas
+            </button>
+            <button onclick="filterCountry('pt')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
+                🇵🇹 Portugal (<span id="ptCount">0</span>)
+            </button>
+            <button onclick="filterCountry('es')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
+                🇪🇸 Espanha
+            </button>
+            <button onclick="filterCountry('world')" class="tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap">
+                🌍 Mundial
+            </button>
+        </div>
+
+        <!-- SECÇÃO DE FAVORITOS (APARECE NO TOPO SE HOUVER) -->
+        <div id="favoritesSection" class="mb-8 hidden">
+            <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-star text-amber-400"></i> As Minhas Favoritas
+            </h2>
+            <div id="favoritesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </div>
+
+        <!-- LISTA DE RÁDIOS -->
+        <h2 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3">Estações Disponíveis</h2>
+        <div id="radiosGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <!-- Preenchido via JavaScript -->
+        </div>
+
+    </main>
+
+    <!-- PLAYER DE ÁUDIO STICKY (FIXO EMBAIXO) -->
+    <footer id="audioPlayerBar" class="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700 p-4 shadow-2xl hidden z-50">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center shrink-0 shadow-inner">
+                    <i id="playerIcon" class="fa-solid fa-volume-high animate-pulse"></i>
+                </div>
+                <div class="truncate">
+                    <h3 id="playerTitle" class="text-sm font-bold truncate">Selecione uma Rádio</h3>
+                    <p id="playerSubtitle" class="text-xs text-slate-400 truncate">A carregar...</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="togglePlayPause()" class="w-12 h-12 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white flex items-center justify-center shadow-lg transition">
+                    <i id="playPauseIcon" class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+        </div>
+        <audio id="audioElement" preload="none"></audio>
+    </footer>
+
+    <!-- LÓGICA DA APLICAÇÃO COM DETETOR DE ERROS -->
+    <script>
+        const radios = [
+            // --- PORTUGAL (Nacionais e Temáticas) ---
+            { id: 'rfm', name: 'RFM', country: 'pt', genre: 'Pop / Rock', url: 'https://stream-icy.bauermedia.pt/rfm.mp3' },
+            { id: 'comercial', name: 'Rádio Comercial', country: 'pt', genre: 'Pop / Hits', url: 'https://stream-icy.bauermedia.pt/comercial.mp3' },
+            { id: 'm80', name: 'M80 Rádio', country: 'pt', genre: '80s & 90s', url: 'https://stream-icy.bauermedia.pt/m80.mp3' },
+            { id: 'tsf', name: 'TSF Rádio Notícias', country: 'pt', genre: 'Notícias', url: 'http://tsfdirecto.tsf.pt/tsfdirecto.aac' },
+            { id: 'renascenca', name: 'Rádio Renascença', country: 'pt', genre: 'Adulto / Pop', url: 'https://stream-icy.bauermedia.pt/renascenca.mp3' },
+            { id: 'antena1', name: 'Antena 1 (RTP)', country: 'pt', genre: 'Informação / Cultura', url: 'https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8', isHls: true },
+            { id: 'antena2', name: 'Antena 2 (RTP)', country: 'pt', genre: 'Clássica / Cultura', url: 'https://streaming-live.rtp.pt/liveradio/antena280a/playlist.m3u8', isHls: true },
+            { id: 'antena3', name: 'Antena 3 (RTP)', country: 'pt', genre: 'Alternativa / Jovem', url: 'https://streaming-live.rtp.pt/liveradio/antena380a/playlist.m3u8', isHls: true },
+            { id: 'cidade', name: 'Cidade FM', country: 'pt', genre: 'Urban / Hip-Hop', url: 'https://stream-icy.bauermedia.pt/cidade.mp3' },
+            { id: 'smooth', name: 'Smooth FM', country: 'pt', genre: 'Jazz / Chill', url: 'https://stream-icy.bauermedia.pt/smooth.mp3' },
+            { id: 'megahits', name: 'Mega Hits', country: 'pt', genre: 'Teen / Pop', url: 'https://stream-icy.bauermedia.pt/megahits.mp3' },
+            { id: 'observador', name: 'Rádio Observador', country: 'pt', genre: 'Notícias / Debate', url: 'https://observador.pt/s/radio/observador.mp3' },
+            { id: 'cmradio', name: 'Correio da Manhã Rádio', country: 'pt', genre: 'Notícias / Desporto', url: 'https://cmradio-edge01.megacima.pt/stream' },
+            { id: 'amalia', name: 'Rádio Amália', country: 'pt', genre: 'Fado / Tradicional', url: 'https://radioamalia.sapo.pt/stream' },
+            { id: 'orbital', name: 'Rádio Orbital', country: 'pt', genre: 'Dance / Electronic', url: 'https://radios.justradio.com/proxy/orbital?mp=/stream' },
+            { id: 'novaera', name: 'Rádio Nova Era', country: 'pt', genre: 'Dance / Hits', url: 'https://centova.radios.pt:9233/stream' },
+            { id: 'marginal', name: 'Rádio Marginal', country: 'pt', genre: 'Adult Contemporary', url: 'https://radios.justradio.com/proxy/marginal?mp=/stream' },
+            { id: 'oxigenio', name: 'Rádio Oxigénio', country: 'pt', genre: 'Electronic / Indie', url: 'https://radios.justradio.com/proxy/oxigenio?mp=/stream' },
+            { id: 'radar', name: 'Rádio Radar', country: 'pt', genre: 'Indie / Alternativa', url: 'https://centova.radios.pt:10116/stream' },
+            { id: 'vodafone', name: 'Vodafone FM', country: 'pt', genre: 'Indie / Rock', url: 'https://vodafone.stream.public.content.domain.com/vodafone.mp3' },
+            { id: 'festival', name: 'Rádio Festival', country: 'pt', genre: 'Popular / Portuguesa', url: 'https://centova.radios.pt:9311/stream' },
+            { id: 'mariaportugal', name: 'Rádio Maria Portugal', country: 'pt', genre: 'Religiosa', url: 'https://dreamsiteradiocp5.com/proxy/rmportugal?mp=/stream' },
+            { id: 'cancaonova', name: 'Rádio Canção Nova', country: 'pt', genre: 'Religiosa', url: 'https://stream.cancaonova.pt/cancaonova.mp3' },
+            { id: 'nitfm', name: 'NiTfm', country: 'pt', genre: 'Tendências / Lifestyle', url: 'https://stream-icy.bauermedia.pt/nitfm.mp3' },
+            { id: 'superfm', name: 'Super FM', country: 'pt', genre: 'Dance / Urban', url: 'https://centova.radios.pt:9251/stream' },
+            { id: 'tocaadancar', name: 'Rádio Toca a Dançar', country: 'pt', genre: 'Dance / Popular', url: 'https://radio.tocaadancar.pt/stream' },
+
+            // --- PORTUGAL (Rádios Regionais e das Ilhas) ---
+            { id: 'radionova', name: 'Rádio Nova (Porto)', country: 'pt', genre: 'Regional / Porto', url: 'https://centova.radios.pt:9209/stream' },
+            { id: 'terranova', name: 'Rádio Terra Nova (Aveiro)', country: 'pt', genre: 'Regional / Aveiro', url: 'https://radios.justradio.com/proxy/terranova?mp=/stream' },
+            { id: 'vizela', name: 'Rádio Vizela', country: 'pt', genre: 'Regional / Minho', url: 'https://centova.radios.pt:9303/stream' },
+            { id: 'santiago', name: 'Rádio Santiago', country: 'pt', genre: 'Regional / Guimarães', url: 'https://centova.radios.pt:9241/stream' },
+            { id: 'hertz', name: 'Rádio Hertz', country: 'pt', genre: 'Regional / Tomar', url: 'https://centova.radios.pt:9227/stream' },
+            { id: 'condestavel', name: 'Rádio Condestável', country: 'pt', genre: 'Regional / Sertã', url: 'https://centova.radios.pt:9215/stream' },
+            { id: 'altominho', name: 'Rádio Alto Minho', country: 'pt', genre: 'Regional / Viana', url: 'https://centova.radios.pt:9201/stream' },
+            { id: 'cister', name: 'Cister FM', country: 'pt', genre: 'Regional / Alcobaça', url: 'https://centova.radios.pt:9211/stream' },
+            { id: 'campanario', name: 'Rádio Campanário', country: 'pt', genre: 'Regional / Alentejo', url: 'https://centova.radios.pt:9207/stream' },
+            { id: 'pax', name: 'Rádio Pax', country: 'pt', genre: 'Regional / Beja', url: 'https://centova.radios.pt:9239/stream' },
+            { id: 'azul', name: 'Rádio Azul', country: 'pt', genre: 'Regional / Setúbal', url: 'https://centova.radios.pt:9221/stream' },
+            { id: 'sines', name: 'Rádio Sines', country: 'pt', genre: 'Regional / Sines', url: 'https://centova.radios.pt:9245/stream' },
+            { id: 'sudeste', name: 'Rádio Sudoeste', country: 'pt', genre: 'Regional / Aljezur', url: 'https://centova.radios.pt:9247/stream' },
+            { id: 'boanova', name: 'Rádio Boa Nova', country: 'pt', genre: 'Regional / Oliveira do Bairro', url: 'https://centova.radios.pt:9213/stream' },
+            { id: 'alvor', name: 'Alvor FM', country: 'pt', genre: 'Regional / Algarve', url: 'https://centova.radios.pt:9263/stream' },
+            { id: 'atlantida', name: 'Rádio Atlântida', country: 'pt', genre: 'Regional / Açores', url: 'https://centova.radios.pt:9205/stream' },
+            { id: 'graciosa', name: 'Rádio Graciosa', country: 'pt', genre: 'Regional / Açores', url: 'https://radios.justradio.com/proxy/graciosa?mp=/stream' },
+            { id: 'montanha', name: 'Rádio Montanha', country: 'pt', genre: 'Regional / Pico', url: 'https://centova.radios.pt:9235/stream' },
+            { id: 'cais', name: 'Rádio Cais', country: 'pt', genre: 'Regional / Pico', url: 'https://radios.justradio.com/proxy/cais?mp=/stream' },
+            { id: 'horizonte', name: 'Rádio Horizonte Algarve', country: 'pt', genre: 'Oldies / Algarve', url: 'https://centova.radios.pt:9229/stream' },
+            { id: 'topfm', name: 'TopFM', country: 'pt', genre: 'Hits / Açores', url: 'https://centova.radios.pt:9257/stream' },
+            { id: 'angra', name: 'Rádio Clube de Angra', country: 'pt', genre: 'Regional / Terceira', url: 'https://centova.radios.pt:9217/stream' },
+            { id: 'azoresradio', name: 'American Azores Rádio', country: 'pt', genre: 'English / Terceira', url: 'https://centova.radios.pt:9261/stream' },
+            { id: 'nove3cinco', name: 'Rádio Nove3cinco', country: 'pt', genre: 'Regional / Braga', url: 'https://centova.radios.pt:9237/stream' },
+            { id: 'vozalentejo', name: 'Rádio Voz do Alentejo', country: 'pt', genre: 'Regional / Ourique', url: 'https://centova.radios.pt:9255/stream' },
+            { id: 'sintra', name: 'Rádio Clube de Sintra', country: 'pt', genre: 'Regional / Sintra', url: 'https://centova.radios.pt:9219/stream' },
+            { id: 'alentejo', name: 'Rádio Alentejo', country: 'pt', genre: 'Regional / Évora', url: 'https://centova.radios.pt:9203/stream' },
+            { id: 'basto', name: 'Rádio Região de Basto', country: 'pt', genre: 'Regional / Celorico', url: 'https://centova.radios.pt:9243/stream' },
+            { id: 'barcelos', name: 'Rádio Barcelos', country: 'pt', genre: 'Regional / Barcelos', url: 'https://centova.radios.pt:9253/stream' },
+            { id: 'minho', name: 'Antena Minho', country: 'pt', genre: 'Regional / Braga', url: 'https://centova.radios.pt:9225/stream' },
+
+            // --- PORTUGAL (Canais Temáticos Digitais / RTP / M80 / RFM) ---
+            { id: 'm80ballads', name: 'M80 Ballads', country: 'pt', genre: 'M80 / Românticas', url: 'https://stream-icy.bauermedia.pt/m80ballads.mp3' },
+            { id: 'm80dance', name: 'M80 Dance', country: 'pt', genre: 'M80 / Dance', url: 'https://stream-icy.bauermedia.pt/m80dance.mp3' },
+            { id: 'rfmoceano', name: 'RFM Oceano Pacífico', country: 'pt', genre: 'RFM / Relax', url: 'https://stream-icy.bauermedia.pt/oceanopacifico.mp3' },
+            { id: 'rfmrock', name: 'RFM On The Rock', country: 'pt', genre: 'RFM / Rock', url: 'https://stream-icy.bauermedia.pt/rfmrock.mp3' },
+            { id: 'rdpafrica', name: 'RDP África', country: 'pt', genre: 'African / World', url: 'https://streaming-live.rtp.pt/liveradio/rdpafrica80a/playlist.m3u8', isHls: true },
+            { id: 'rdpinternacional', name: 'RDP Internacional', country: 'pt', genre: 'Global / Portuguesa', url: 'https://streaming-live.rtp.pt/liveradio/rdpinter80a/playlist.m3u8', isHls: true },
+            { id: 'antena1fado', name: 'Antena 1 Fado', country: 'pt', genre: 'Fado / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena1fado80a/playlist.m3u8', isHls: true },
+            { id: 'antena1memoria', name: 'Antena 1 Memória', country: 'pt', genre: 'Retro / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena1memoria80a/playlist.m3u8', isHls: true },
+            { id: 'antena2jazz', name: 'Antena 2 Jazz', country: 'pt', genre: 'Jazz / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena2jazz80a/playlist.m3u8', isHls: true },
+            { id: 'antena3rock', name: 'Antena 3 Rock', country: 'pt', genre: 'Rock / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena3rock80a/playlist.m3u8', isHls: true },
+
+            // --- ESPANHA ---
+            { id: 'los40', name: 'LOS40 Spain', country: 'es', genre: 'Top 40 / Pop', url: 'https://25633.live.streamtheworld.com/LOS40.mp3' },
+            { id: 'cadenaser', name: 'Cadena SER', country: 'es', genre: 'Notícias / Geral', url: 'https://playerservices.streamtheworld.com/api/livestreamredirect/CADENASER.mp3' },
+            { id: 'cope', name: 'Cadena COPE', country: 'es', genre: 'Generalista', url: 'https://cope-audio.cope.es/cope_directo_96kbps.aac' },
+            { id: 'europafm', name: 'Europa FM', country: 'es', genre: 'Pop / Rock', url: 'https://radio-atres-live.ondacero.es/api/livestream/europafm/master.m3u8', isHls: true },
+
+            // --- MUNDIAL ---
+            { id: 'bbc1', name: 'BBC Radio 1', country: 'world', genre: 'UK / Modern', url: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one' },
+            { id: 'capital', name: 'Capital FM London', country: 'world', genre: 'Hits / UK', url: 'https://media-ice.musicradio.com/CapitalMP3' },
+            { id: 'ibiza', name: 'Ibiza Global Radio', country: 'world', genre: 'Electronic / House', url: 'https://ibizaglobalradio.bcast.eqx.earth/ibizaglobalradio.mp3' },
+            { id: 'kexp', name: 'KEXP Seattle', country: 'world', genre: 'Alternative', url: 'https://kexp-mp3-128.streamguys1.com/kexp128.mp3' }
+        ];
+
+        let currentFilter = 'all';
+        let currentAudio = document.getElementById('audioElement');
+        let hlsInstance = null;
+        let currentStation = null;
+        let favorites = JSON.parse(localStorage.getItem('radios_pt_favs')) || [];
+
+        // Detetor de Erros no Elemento de Áudio
+        currentAudio.addEventListener('error', (e) => {
+            if (currentStation) {
+                console.error(`[ERRO DE STREAM] A rádio "${currentStation.name}" falhou. URL: ${currentStation.url}`);
+                document.getElementById('playerSubtitle').textContent = "⚠️ Erro: Stream offline ou bloqueado";
+                alert(`A rádio "${currentStation.name}" está a dar erro de reprodução (stream offline ou bloqueado por segurança).`);
+            }
+        });
+
+        // Atualizar contador de Portugal na interface
+        document.getElementById('ptCount').textContent = radios.filter(r => r.country === 'pt').length;
+
+        function renderRadios() {
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+            const grid = document.getElementById('radiosGrid');
+            const favGrid = document.getElementById('favoritesGrid');
+            const favSection = document.getElementById('favoritesSection');
+
+            grid.innerHTML = '';
+            favGrid.innerHTML = '';
+
+            const filtered = radios.filter(r => {
+                const matchesCountry = currentFilter === 'all' || r.country === currentFilter;
+                const matchesSearch = r.name.toLowerCase().includes(searchQuery) || r.genre.toLowerCase().includes(searchQuery);
+                return matchesCountry && matchesSearch;
+            });
+
+            const favRadios = radios.filter(r => favorites.includes(r.id));
+            if (favRadios.length > 0 && currentFilter === 'all' && !searchQuery) {
+                favSection.classList.remove('hidden');
+                favRadios.forEach(r => {
+                    favGrid.appendChild(createRadioCard(r, true));
+                });
+            } else {
+                favSection.classList.add('hidden');
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-slate-500 text-sm col-span-full text-center py-6">Nenhuma estação encontrada.</p>`;
+                return;
+            }
+
+            filtered.forEach(r => {
+                grid.appendChild(createRadioCard(r, false));
+            });
+        }
+
+        function createRadioCard(radio, isFavContainer) {
+            const isPlaying = currentStation && currentStation.id === radio.id && !currentAudio.paused;
+            const isFav = favorites.includes(radio.id);
+
+            const card = document.createElement('div');
+            card.className = `bg-slate-800 border ${isPlaying ? 'border-indigo-500 shadow-indigo-500/20 shadow-lg' : 'border-slate-700/60'} rounded-2xl p-4 flex items-center justify-between hover:border-slate-600 transition`;
+            
+            card.innerHTML = `
+                <div class="flex items-center gap-3.5 cursor-pointer flex-1 overflow-hidden" onclick="playStation('${radio.id}')">
+                    <div class="w-11 h-11 rounded-xl ${isPlaying ? 'bg-indigo-600 animate-pulse' : 'bg-slate-700'} flex items-center justify-center shrink-0 text-white font-bold text-xs shadow">
+                        ${isPlaying ? '<i class="fa-solid fa-volume-high"></i>' : radio.name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div class="truncate">
+                        <h3 class="text-sm font-bold text-slate-100 truncate">${radio.name}</h3>
+                        <p class="text-xs text-slate-400 truncate">${radio.genre} • <span class="uppercase text-[10px] bg-slate-700 px-1.5 py-0.5 rounded text-slate-300">${radio.country}</span></p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleFavorite('${radio.id}')" class="text-slate-400 hover:text-amber-400 p-2 transition">
+                        <i class="${isFav ? 'fa-solid text-amber-400' : 'fa-regular'} fa-star"></i>
+                    </button>
+                    <button onclick="playStation('${radio.id}')" class="w-10 h-10 rounded-xl ${isPlaying ? 'bg-indigo-600 text-white' : 'bg-slate-700 hover:bg-slate-600 text-slate-200'} flex items-center justify-center transition shadow">
+                        <i class="fa-solid ${isPlaying ? 'fa-pause' : 'fa-play'} text-xs"></i>
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
+        function playStation(id) {
+            const station = radios.find(r => r.id === id);
+            if (!station) return;
+
+            const playerBar = document.getElementById('audioPlayerBar');
+            const playerTitle = document.getElementById('playerTitle');
+            const playerSubtitle = document.getElementById('playerSubtitle');
+            const playPauseIcon = document.getElementById('playPauseIcon');
+
+            if (currentStation && currentStation.id === id) {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                    playPauseIcon.className = "fa-solid fa-pause";
+                } else {
+                    currentAudio.pause();
+                    playPauseIcon.className = "fa-solid fa-play";
+                }
+            } else {
+                currentStation = station;
+
+                if (hlsInstance) {
+                    hlsInstance.destroy();
+                    hlsInstance = null;
+                }
+
+                playerBar.classList.remove('hidden');
+                playerTitle.textContent = station.name;
+                playerSubtitle.textContent = `A ligar ao stream...`;
+                playPauseIcon.className = "fa-solid fa-pause";
+
+                if (station.isHls && Hls.isSupported()) {
+                    hlsInstance = new Hls();
+                    hlsInstance.loadSource(station.url);
+                    hlsInstance.attachMedia(currentAudio);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                        currentAudio.play().then(() => {
+                            playerSubtitle.textContent = `${station.genre} • Em direto`;
+                        }).catch(e => {
+                            console.error(`Erro HLS play:`, e);
+                        });
+                    });
+                    hlsInstance.on(Hls.Events.ERROR, (event, data) => {
+                        if (data.fatal) {
+                            console.error(`[ERRO HLS FATAL] Rádio: ${station.name}`, data);
+                            playerSubtitle.textContent = "⚠️ Erro no stream HLS";
+                        }
+                    });
+                } else {
+                    currentAudio.src = station.url;
+                    currentAudio.play().then(() => {
+                        playerSubtitle.textContent = `${station.genre} • Em direto`;
+                    }).catch(e => {
+                        console.error(`[ERRO HTML5 AUDIO] Rádio: ${station.name}`, e);
+                        playerSubtitle.textContent = "⚠️ Erro de reprodução";
+                    });
+                }
+            }
+            renderRadios();
+        }
+
+        function togglePlayPause() {
+            if (!currentStation) return;
+            const playPauseIcon = document.getElementById('playPauseIcon');
+            if (currentAudio.paused) {
+                currentAudio.play();
+                playPauseIcon.className = "fa-solid fa-pause";
+            } else {
+                currentAudio.pause();
+                playPauseIcon.className = "fa-solid fa-play";
+            }
+            renderRadios();
+        }
+
+        function toggleFavorite(id) {
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(fav => fav !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('radios_pt_favs', JSON.stringify(favorites));
+            renderRadios();
+        }
+
+        function filterCountry(country) {
+            currentFilter = country;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-slate-800 text-slate-300 hover:bg-slate-700 transition whitespace-nowrap";
+            });
+            event.currentTarget.className = "tab-btn px-4 py-2 rounded-xl text-sm font-medium bg-indigo-600 text-white transition shadow-md whitespace-nowrap";
+            renderRadios();
+        }
+
+        function dismissAd() {
+            document.getElementById('adBanner').style.display = 'none';
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderRadios);
+
+        renderRadios();
+    </script>
+</body>
+</html>
