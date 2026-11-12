@@ -151,57 +151,25 @@
         <audio id="audioElement" preload="none"></audio>
     </footer>
 
-    <!-- LÓGICA DA APLICAÇÃO + LISTA CONVERTIDA DA TUA M3U -->
+    <!-- LÓGICA DA APLICAÇÃO -->
     <script>
         const radios = [
             // --- PORTUGAL ---
-            { id: 'antena1', name: 'Rádio RTP Antena 1', country: 'pt', genre: 'Informação / Cultura', url: 'https://streaming-live.rtp.pt/liveradio/antena180a/playlist.m3u8', isHls: true },
-            { id: 'antena2', name: 'Rádio RTP Antena 2', country: 'pt', genre: 'Clássica / Cultura', url: 'https://streaming-live.rtp.pt/liveradio/antena280a/playlist.m3u8', isHls: true },
-            { id: 'antena3', name: 'Rádio RTP Antena 3', country: 'pt', genre: 'Alternativa / Jovem', url: 'https://streaming-live.rtp.pt/liveradio/antena380a/playlist.m3u8', isHls: true },
-            { id: 'antena1acores', name: 'RTP Antena 1 Açores', country: 'pt', genre: 'Regional / Açores', url: 'https://streaming-live.rtp.pt/liveradio/antena1acores80a/playlist.m3u8', isHls: true },
-            { id: 'antena1madeira', name: 'RTP Antena 1 Madeira', country: 'pt', genre: 'Regional / Madeira', url: 'https://streaming-live.rtp.pt/liveradio/antena1madeira80a/playlist.m3u8', isHls: true },
-            { id: 'antena3madeira', name: 'RTP Antena 3 Madeira', country: 'pt', genre: 'Regional / Madeira', url: 'https://streaming-live.rtp.pt/liveradio/antena3madeira80a/playlist.m3u8', isHls: true },
-            { id: 'rdpmundo', name: 'Rádio RTP Mundo', country: 'pt', genre: 'Global', url: 'https://streaming-live.rtp.pt/liveradio/rdpint80a/playlist.m3u8', isHls: true },
-            { id: 'rdpafrica', name: 'Rádio RTP África', country: 'pt', genre: 'African / World', url: 'https://streaming-live.rtp.pt/liveradio/rdpafrica80a/playlist.m3u8', isHls: true },
-            { id: 'rtpvida', name: 'Rádio RTP Vida', country: 'pt', genre: 'Temática', url: 'https://streaming-live.rtp.pt/liveradio/vida80a/playlist.m3u8', isHls: true },
-            { id: 'rtplusitania', name: 'Rádio RTP Lusitânia', country: 'pt', genre: 'Temática', url: 'https://streaming-live.rtp.pt/liveradio/lusitania80a/playlist.m3u8', isHls: true },
-            { id: 'antena1fado', name: 'Rádio RTP Fado', country: 'pt', genre: 'Fado / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena1fado80a/playlist.m3u8', isHls: true },
-            { id: 'antena2jazzin', name: 'Rádio RTP Jazzin\'', country: 'pt', genre: 'Jazz / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena2jazzin80a/playlist.m3u8', isHls: true },
-            { id: 'antena2opera', name: 'Rádio RTP Ópera', country: 'pt', genre: 'Ópera / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena2opera80a/playlist.m3u8', isHls: true },
-            { id: 'amalia', name: 'Rádio Amália', country: 'pt', genre: 'Fado / Tradicional', url: 'http://link.radios.pt/amalia?1487014253471.mp3' },
-            { id: 'cidade', name: 'Rádio Cidade FM', country: 'pt', genre: 'Urban / Pop', url: 'https://stream-hls.bauermedia.pt/cidade.aac/playlist.m3u8', isHls: true },
-            { id: 'cidhiphop', name: 'Rádio Cidade Hip Hop', country: 'pt', genre: 'Hip-Hop', url: 'https://stream-hls.bauermedia.pt/cidhiphop.aac/playlist.m3u8', isHls: true },
-            { id: 'cidlatina', name: 'Rádio Cidade Latina', country: 'pt', genre: 'Latina', url: 'https://stream-hls.bauermedia.pt/cidlatina.aac/playlist.m3u8', isHls: true },
-            { id: 'comercial', name: 'Rádio Comercial', country: 'pt', genre: 'Pop / Hits', url: 'https://stream-hls.bauermedia.pt/comercial.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialrock', name: 'Rádio Comercial Rock', country: 'pt', genre: 'Rock', url: 'https://stream-hls.rayo.pt/rcrock.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialdance', name: 'Rádio Comercial Dance', country: 'pt', genre: 'Dance', url: 'https://stream-hls.bauermedia.pt/rcdance.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialbynight', name: 'Rádio Comercial By Night', country: 'pt', genre: 'Soft / Chill', url: 'https://stream-hls.bauermedia.pt/rcsoft.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialonehit', name: 'Rádio Comercial One Hit Wonders', country: 'pt', genre: 'Hits', url: 'https://stream-hls.bauermedia.pt/rchit.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialkids', name: 'Rádio Comercial Kids', country: 'pt', genre: 'Infantil', url: 'https://stream-hls.bauermedia.pt/rckids.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialportugal', name: 'Rádio Comercial Portugal', country: 'pt', genre: 'Música Portuguesa', url: 'https://stream-hls.bauermedia.pt/rctuga.aac/playlist.m3u8', isHls: true },
-            { id: 'comercialbrasil', name: 'Rádio Comercial Brasil', country: 'pt', genre: 'Música Brasileira', url: 'https://stream-hls.bauermedia.pt/rcbrasil.aac/playlist.m3u8', isHls: true },
-            { id: 'comercial90', name: 'Rádio Comercial 90s', country: 'pt', genre: 'Anos 90', url: 'https://stream-hls.bauermedia.pt/rcbest90.aac/playlist.m3u8', isHls: true },
-            { id: 'comercial2000', name: 'Rádio Comercial 2000s', country: 'pt', genre: 'Anos 2000', url: 'https://stream-hls.bauermedia.pt/rcbest2000.aac/playlist.m3u8', isHls: true },
-            { id: 'm80', name: 'Rádio M80', country: 'pt', genre: '80s & 90s', url: 'https://stream-hls.bauermedia.pt/m80.aac/playlist.m3u8', isHls: true },
-            { id: 'megahits', name: 'Rádio Mega Hits', country: 'pt', genre: 'Teen / Pop', url: 'https://29023.live.streamtheworld.com/MEGA_HITS_SC' },
-            { id: 'cmradio', name: 'Correio da Manhã Rádio', country: 'pt', genre: 'Notícias / Desporto', url: 'https://cmradio.medialivre.pt/stream' },
-            { id: 'marginal', name: 'Rádio Marginal', country: 'pt', genre: 'Adult Contemporary', url: 'https://centova.radios.pt/proxy/marginal?mp=/stream' },
-            { id: 'oxigenio', name: 'Rádio Oxigénio', country: 'pt', genre: 'Electronic / Indie', url: 'https://proic1.evspt.com/oxigenio_aac' },
-            { id: 'radar', name: 'Rádio Radar', country: 'pt', genre: 'Indie / Alternativa', url: 'https://proic1.evspt.com/radar_aac' },
-            { id: 'batidafm', name: 'Batida FM (ex-Vodafone)', country: 'pt', genre: 'Indie / Rock', url: 'https://stream-hls.bauermedia.pt/batidafm.aac/playlist.m3u8', isHls: true },
-            { id: 'festival', name: 'Rádio Festival', country: 'pt', genre: 'Popular / Portuguesa', url: 'https://play.radioregional.pt:8210/stream/2/;/stream.mp3' },
-            { id: 'mariaportugal', name: 'Rádio Maria Portugal', country: 'pt', genre: 'Religiosa', url: 'https://dreamsiteradiocp5.com/proxy/rmportugal?mp=/stream' },
-            { id: 'cancaonova', name: 'Rádio Canção Nova', country: 'pt', genre: 'Religiosa', url: 'https://stream.cancaonova.pt/cancaonova.mp3' },
-            { id: 'nitfm', name: 'NiTfm', country: 'pt', genre: 'Tendências / Lifestyle', url: 'https://25733.live.streamtheworld.com/NITFM.mp3' },
-            { id: 'tocaadancar', name: 'Rádio Toca a Dançar', country: 'pt', genre: 'Dance / Popular', url: 'https://radio.tocaadancar.pt/stream' },
-            { id: 'radionova', name: 'Rádio Nova (Porto)', country: 'pt', genre: 'Regional / Porto', url: 'http://centova.radio.com.pt:9528' },
+            { id: 'rtpvida', name: 'Rádio RTP Vida', country: 'pt', genre: 'Temática', url: 'https://streaming-live.rtp.pt/liveradio/vida80a/index.m3u8', isHls: true },
+            { id: 'amalia', name: 'Rádio Amália', country: 'pt', genre: 'Fado / Tradicional', url: 'https://centova.radios.pt/proxy/amalia?mp=/stream' },
+            { id: 'cmradio', name: 'Correio da Manhã Rádio', country: 'pt', genre: 'Notícias / Desporto', url: 'https://cmradio.medialivre.pt/stream/playlist.m3u8', isHls: true },
+            { id: 'marginal', name: 'Rádio Marginal', country: 'pt', genre: 'Adult Contemporary', url: 'https://radios.justradio.com/proxy/marginal?mp=/stream' },
+            { id: 'mariaportugal', name: 'Rádio Maria Portugal', country: 'pt', genre: 'Religiosa', url: 'https://dreamsiteradiocp5.com/proxy/rmportugal/stream' },
+            { id: 'cancaonova', name: 'Rádio Canção Nova', country: 'pt', genre: 'Religiosa', url: 'https://cancaonova-pt.streamguys1.com/live' },
+            { id: 'nitfm', name: 'NiTfm', country: 'pt', genre: 'Tendências / Lifestyle', url: 'https://stream-hls.bauermedia.pt/nitfm.aac/playlist.m3u8', isHls: true },
+            { id: 'tocaadancar', name: 'Rádio Toca a Dançar', country: 'pt', genre: 'Dance / Popular', url: 'https://spcast.eu/proxy/tocaadancar?mp=/stream' },
+            { id: 'radionova', name: 'Rádio Nova (Porto)', country: 'pt', genre: 'Regional / Porto', url: 'https://centova.radios.pt/proxy/radionova?mp=/stream' },
             { id: 'vizela', name: 'Rádio Vizela', country: 'pt', genre: 'Regional / Minho', url: 'https://centova.radios.pt/proxy/vizela?mp=/stream' },
             { id: 'santiago', name: 'Rádio Santiago', country: 'pt', genre: 'Regional / Guimarães', url: 'https://centova.radios.pt/proxy/santiago?mp=/stream' },
             { id: 'condestavel', name: 'Rádio Condestável', country: 'pt', genre: 'Regional / Sertã', url: 'https://centova.radios.pt/proxy/condestavel?mp=/stream' },
             { id: 'altominho', name: 'Rádio Alto Minho', country: 'pt', genre: 'Regional / Viana', url: 'https://centova.radios.pt/proxy/altominho?mp=/stream' },
             { id: 'cister', name: 'Cister FM', country: 'pt', genre: 'Regional / Alcobaça', url: 'https://centova.radios.pt/proxy/cister?mp=/stream' },
             { id: 'campanario', name: 'Rádio Campanário', country: 'pt', genre: 'Regional / Alentejo', url: 'https://centova.radios.pt/proxy/campanario?mp=/stream' },
-            { id: 'sines', name: 'Rádio Sines', country: 'pt', genre: 'Regional / Sines', url: 'https://sp0.redeaudio.com/9580/stream' },
             { id: 'boanova', name: 'Rádio Boa Nova', country: 'pt', genre: 'Regional / Oliveira do Bairro', url: 'https://centova.radios.pt/proxy/boanova?mp=/stream' },
             { id: 'atlantida', name: 'Rádio Atlântida', country: 'pt', genre: 'Regional / Açores', url: 'https://centova.radios.pt/proxy/atlantida?mp=/stream' },
             { id: 'graciosa', name: 'Rádio Graciosa', country: 'pt', genre: 'Regional / Açores', url: 'https://radios.justradio.com/proxy/graciosa?mp=/stream' },
@@ -211,16 +179,15 @@
             { id: 'sintra', name: 'Rádio Clube de Sintra', country: 'pt', genre: 'Regional / Sintra', url: 'https://centova.radios.pt/proxy/sintra?mp=/stream' },
             { id: 'basto', name: 'Rádio Região de Basto', country: 'pt', genre: 'Regional / Celorico', url: 'https://centova.radios.pt/proxy/basto?mp=/stream' },
             { id: 'minho', name: 'Antena Minho', country: 'pt', genre: 'Regional / Braga', url: 'https://centova.radios.pt/proxy/minho?mp=/stream' },
-            { id: 'rfmoceano', name: 'RFM Oceano Pacífico', country: 'pt', genre: 'RFM / Relax', url: 'https://25533.live.streamtheworld.com/OCEANPACIFICAAC' },
-            { id: 'rfmrock', name: 'RFM On The Rock', country: 'pt', genre: 'RFM / Rock', url: 'https://20863.live.streamtheworld.com/RFMONTHEROCKAAC' },
-            { id: 'rdpinternacional', name: 'RDP Internacional', country: 'pt', genre: 'Global / Portuguesa', url: 'https://streaming-live.rtp.pt/liveradio/rdpint80a/playlist.m3u8', isHls: true },
-            { id: 'antena1memoria', name: 'Antena 1 Memória', country: 'pt', genre: 'Retro / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena1memoria80a/playlist.m3u8', isHls: true },
-            { id: 'antena3rock', name: 'Antena 3 Rock', country: 'pt', genre: 'Rock / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena3rock80a/playlist.m3u8', isHls: true },
+            { id: 'rfmoceano', name: 'RFM Oceano Pacífico', country: 'pt', genre: 'RFM / Relax', url: 'https://stream-hls.bauermedia.pt/oceanopacifico.aac/playlist.m3u8', isHls: true },
+            { id: 'rfmrock', name: 'RFM On The Rock', country: 'pt', genre: 'RFM / Rock', url: 'https://stream-hls.bauermedia.pt/rfmrock.aac/playlist.m3u8', isHls: true },
+            { id: 'antena1memoria', name: 'Antena 1 Memória', country: 'pt', genre: 'Retro / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena1memoria80a/index.m3u8', isHls: true },
+            { id: 'antena3rock', name: 'Antena 3 Rock', country: 'pt', genre: 'Rock / RTP', url: 'https://streaming-live.rtp.pt/liveradio/antena3rockin80a/index.m3u8', isHls: true },
 
             // --- ESPANHA ---
-            { id: 'cadenaser', name: 'Cadena SER', country: 'es', genre: 'Notícias / Geral', url: 'https://playerservices.streamtheworld.com/api/livestreamredirect/CADENASER.mp3' },
-            { id: 'europafm', name: 'Europa FM', country: 'es', genre: 'Pop / Rock', url: 'https://radio-atres-live.ondacero.es/api/livestream/europafm/master.m3u8', isHls: true },
-            { id: 'melodiafm', name: 'Melodía FM', country: 'es', genre: 'Pop / Anos 90', url: 'https://radio-atres-live.ondacero.es/api/livestream/melodiafm/master.m3u8', isHls: true },
+            { id: 'cadenaser', name: 'Cadena SER', country: 'es', genre: 'Notícias / Geral', url: 'https://playerservices.streamtheworld.com/api/livestreamredirect/CADENASERAAC.aac' },
+            { id: 'europafm', name: 'Europa FM', country: 'es', genre: 'Pop / Rock', url: 'https://playerservices.streamtheworld.com/api/livestreamredirect/EUROPAP_SC.aac' },
+            { id: 'melodiafm', name: 'Melodía FM', country: 'es', genre: 'Pop / Anos 90', url: 'https://playerservices.streamtheworld.com/api/livestreamredirect/MELODIA_FM.mp3' },
             { id: 'rne1', name: 'RNE 1 (Radio Nacional)', country: 'es', genre: 'Informação / Pública', url: 'https://rtve-live.stream.flumotion.com/rtve/rne_s1m.mp3' },
             { id: 'rne3', name: 'Radio 3 (RNE)', country: 'es', genre: 'Alternativa / Cultural', url: 'https://rtve-live.stream.flumotion.com/rtve/rne_r3m.mp3' },
             { id: 'rne5', name: 'Radio 5 (RNE)', country: 'es', genre: 'Notícias Continuas', url: 'https://rtve-live.stream.flumotion.com/rtve/rne_r5m.mp3' },
@@ -228,7 +195,7 @@
             { id: 'masterfmlatino', name: 'Master FM Latino', country: 'es', genre: 'Latino / Reggaeton', url: 'https://audio.masterfm.es/latino.mp3' },
 
             // --- MUNDIAL ---
-            { id: 'bbc1', name: 'BBC Radio 1', country: 'world', genre: 'UK / Modern', url: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_one' }
+            { id: 'bbc1', name: 'BBC Radio 1', country: 'world', genre: 'UK / Modern', url: 'https://as-hls-ww-live.akamaized.net/pool_904/live/ww/bbc_radio_one/bbc_radio_one.isml/bbc_radio_one-audio%3d96000.norewind.m3u8', isHls: true }
         ];
 
         let currentFilter = 'all';
@@ -237,7 +204,6 @@
         let currentStation = null;
         let favorites = JSON.parse(localStorage.getItem('radios_pt_favs')) || [];
 
-        // Estado da verificação automática em segundo plano
         let streamStatus = {};
         let checkSessionId = 0;
 
@@ -245,7 +211,6 @@
         document.getElementById('esCount').textContent = radios.filter(r => r.country === 'es').length;
         document.getElementById('worldCount').textContent = radios.filter(r => r.country === 'world').length;
 
-        // --- SISTEMA DE VERIFICAÇÃO SILENCIOSA EM SEGUNDO PLANO ---
         function testSingleStream(radio, sessionId) {
             return new Promise((resolve) => {
                 if (sessionId !== checkSessionId) return resolve();
@@ -387,7 +352,6 @@
             navigator.clipboard.writeText(text).then(() => alert('Lista de rádios com erro copiada!'));
         }
 
-        // --- RENDERIZAÇÃO E REPRODUÇÃO NORMAL ---
         function renderRadios() {
             const rawSearch = document.getElementById('searchInput').value.trim();
             const searchQuery = rawSearch.toLowerCase();
