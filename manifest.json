@@ -1,0 +1,13 @@
+{
+  "background_color": "#0f1729",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Radios-PT",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Radios-PT",
+  "start_url": "/",
+  "theme_color": "#4f46e5",
+  "id": "com.github.11318rafaelneves.radiospt",
+  "description": "Uma aplicação moderna e leve para ouvir estações de rádio em direto de Portugal, Espanha e de todo o mundo. Conta com uma interface limpa, lista de favoritas, filtros por país e suporte para streams de alta qualidade."
+}
